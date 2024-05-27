@@ -10,7 +10,7 @@ const multer = require('multer');
 // Multer setup for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+    cb(null, 'tmp/');
   },
   filename: function (req, file, cb) {
     cb(null, file.originalname);
@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Static file serving
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+app.use('/uploads', express.static(path.join(__dirname, 'tmp'), {
   setHeaders: (res, path, stat) => {
     res.set('Content-Disposition', 'inline');
   }
