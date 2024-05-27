@@ -36,10 +36,10 @@ app.use(
   );
 
 var con = mysql.createPool({
-    host: "localhost",
-    user: "id21107175_user",
-    password: "Dimass123_",
-    database: "id21107175_gamiteam"
+    host: "sql12.freemysqlhosting.net",
+    user: "sql12709669",
+    password: "adh6cLP8jB",
+    database: "	sql12709669"
   });
 
 con.getConnection(function(err) {
