@@ -1,0 +1,35 @@
+*{
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+.container{
+    width: 100%;
+    min-height: 100vh;
+    height: auto;
+    background-color: #01203a;
+    box-sizing: border-box;
+}
+.box{
+    width: 460px;
+    min-height: 100vh;
+    height: auto;
+    background-color: #023059;
+    margin: auto;
+    box-sizing: border-box;
+}
+.task-box{
+    width: 90%;
+    height: fit-content;
+    background-color: #F2EBDC;
+    border: 3px solid #F2226E;
+    margin: auto;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0px 10px 0px;
+}

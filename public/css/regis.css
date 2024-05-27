@@ -1,0 +1,95 @@
+*{
+    padding: 0px;
+    margin:0px;
+    box-sizing: border-box;
+}
+
+h1{
+    text-align: center;
+    padding-top: 20px;
+    margin-bottom: 10px;
+}
+
+.content{
+    width: 100%;
+    height: 100vh;
+    background-color: #FFFDFA;
+    color: #1A2126;
+    display: flex;
+    align-items: center;
+}
+
+.register{
+    width: 70%;
+    height: 500px;
+    margin: auto;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.register-img{
+background-color: rgb(255, 255, 255);
+}
+.middlepart{
+    height: 100%;
+    width: 2px;
+    background-color: gray;
+    opacity: 0.4;
+}
+
+.register-img img{
+    width: 400px;
+    height: 400px;
+}
+.register-box{
+    width: 400px;
+    height: 400px;
+    font-family: 'Montserrat', sans-serif;
+    border-radius: 10px;
+}
+.form-group{
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.form-group button{
+    width: 300px;
+    height: 40px;
+    margin: auto;
+    border-radius: 3px;
+    margin-top: 10px;
+    background-color: #BBCDF2;
+    font-weight: bolder;
+    letter-spacing: 2px;
+    cursor: pointer;
+}
+.form-group button:active{
+    background-color: #8492ad;
+}
+input{
+    text-align: center;
+    width: 300px;
+    margin: auto;
+    height: 40px;
+    border-radius:3px;
+    border: 0.1px solid #1A2126;
+}
+.anotherlist{
+    text-align: center;
+    margin-top: 20px;
+    align-self: center;
+}
+
+.anotherlist p{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    width: 300px;
+    height: 40px;
+    border-radius:3px;
+    border: 0.1px solid #1A2126;
+    cursor: pointer;
+}

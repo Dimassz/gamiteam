@@ -1,0 +1,164 @@
+*{
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+.container{
+    width: 100%;
+    height: 100vh;  
+    background-color: #01203a;
+}
+
+.box{
+    width: 460px;
+    height: 100vh;
+    background-color: #023059;
+    margin: auto;
+}
+.header{
+    padding-top: 10px;
+    width: 100%;
+}
+.header-box{
+    width: 95%;
+    background-color: #F2226E;
+    margin: auto;
+    border-radius: 12px;
+}
+
+.header-box:hover{
+    cursor: pointer;
+}
+.header-content{
+    width: 95%;
+    height: 88px;
+    border-radius: 12px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    color: rgb(255, 255, 255);
+}
+.header-photo{
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background-image:url('/image/avatar_1.svg');
+     background-size: cover;
+}
+.inventory{
+    display: flex;
+    align-items: center;
+}
+progress{
+    border-radius: 6px; 
+    height: 7px;
+    width: 100%;
+    border: 2px solid #41F28E;
+    display: flex;
+    margin-top: 3px;
+  }
+  progress::-webkit-progress-bar {
+    background-color: transparent;
+    border-radius: 6px;
+  }
+  progress::-webkit-progress-value {
+    background-color: #41F28E;
+    border-radius: 6px;
+  }
+
+.section-2-box{
+    width: 49%;
+    height: 150px;
+    background-color: white;
+    border-radius: 12px;
+    border: 3px solid #F2226E;
+    display: flex;
+}
+
+.section-2-content{
+    width: 90%;
+    height: 95%;
+    margin: auto;
+    padding-top: 10px;
+}
+.task{
+    margin-top: 5px;
+    width: 189px;
+}
+.section-3{
+    width: 100%;
+    height: max-content;
+    margin-top: 7px;
+}
+.section-3-box{
+    width: 95%;
+    height: fit-content;
+    margin: auto;
+    background-color: white;
+    border: 3px solid #F2226E;
+    border-radius: 12px;
+}
+.section-3-content{
+    width: 90%;
+    margin: auto;
+    height: auto;
+}
+
+.section-4{
+    width: 100%;
+    height: 261px;
+    margin-top: 7px;
+}
+.section-4-container{
+    width: 95%;
+    height: 100%;
+    display: flex;
+    margin: auto;
+    justify-content: space-between;
+}
+.section-4-1{
+    width:49% ;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: white;
+    text-align: center;
+}
+.section-4-2{
+    width: 49%;
+    height: 100%;
+    border-radius: 12px;
+    background-color: #F21D81;
+    color: white;
+}
+.section-4-2:hover{
+    cursor: pointer;
+}
+
+.section-4-1-rule{
+    width: 100%;
+    height: 32%;
+    border-radius: 12px;
+    background-color: #F21D81;
+}
+.section-4-1-achievement{
+    width: 100%;
+    height: 32%;
+    border-radius: 12px;
+    background-color: #F21D81;
+}
+.section-4-1-reedem{
+    width: 100%;
+    height: 32%;
+    border-radius: 12px;
+    background-color: #F21D81;
+}
+.section-4-2-list img{
+    width: 35px;
+    height: 55px;
+}

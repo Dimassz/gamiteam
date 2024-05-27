@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="/css/profile.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="box">
+            <div class="header">
+                <div class="header-content">
+                    <div class="photo-profile">
+
+                    </div>
+                    <div class="name-level" style="text-align: center;">
+                        <p style="font-size: 18px; font-weight: 600;"><%=data.name%></p>
+                        <p style="font-weight: 500px;">Level 10</p>
+                    </div>
+                    <div class="inventory" style="text-align: center; font-size: 12px; font-weight: bold;">
+                        <div class="inventory-box">
+                            <p style="margin-top: 3px;">Rank</p>
+                            <img src="/image/<%=data.ranked%>_tier.svg" style="width: 35px;height: 35px;">
+                        </div>
+                        <div class="inventory-box">
+                            <p style="margin-top: 3px;">Gold</p>
+                            <div style="display: flex; align-items: center; justify-content: space-evenly; width: 70%; margin: auto;">
+                             <img src="/image/coin.svg" style="width: 30px;height: 30px;">
+                             <p style="font-size: 15px;"><%=data.coin%></p>
+                            </div>
+                        </div>
+                        <div class="inventory-box">
+                            <p style="margin-top: 3px;">Ruby</p>
+                            <div style="display: flex; align-items: center; justify-content: space-evenly; width: 70%; margin: auto;">
+                                <img src="/image/gem.svg" style="width: 30px;height: 30px;">
+                                <p style="font-size: 15px;"><%=data.ruby%></p>
+                               </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="account-descripton">
+                <div class="account" style="display: flex; flex-direction: column; justify-content:space-evenly;color: white; font-weight: 600; ">
+                    <p>Email : <%=data.email%></p>
+                    <p>Division : <%=data.divisi%></p>
+                    <p>Position : <%=data.position%></p>
+                </div>
+            </div>
+
+            <div class="badges">
+            <p style="font-weight: bolder; padding: 10px;">BADGES</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

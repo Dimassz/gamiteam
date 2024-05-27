@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="/css/taskList.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="box">
+    <% if (role === "Master" || role === "Grandmaster"){%>
+    <form method="post" action="/addTask">
+        <input type="text" placeholder="task" id="task" name="task" maxlength="40">
+        <input type="text" placeholder="descrption" id="descrption" name="descrption">
+        <input type="number" placeholder="reward" id="reward" name="reward">
+        <input type="number" placeholder="punishment" name="punishment">
+        <input type="date" id="date" name="date" >
+        <input type="time" id="time" name="time">
+        <select name="repetition" id="repetition">
+            <option value="None">None</option>
+            <option value="Daily">Daily</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Mothly">Mothly</option>
+        </select>
+        <select id="taskCode" name="taskCode" >
+            <option value=11>Divisi</option>
+            <option value=22>Spesifik</option>
+            <option value=33 >All</option>
+        </select>
+        <select id="player" name="player" style="display: none;">
+            <% results_player.forEach(player=>{%>
+                <option value="<%=player.id%>"><%=player.name%></option>
+          <% }) %>
+
+        </select>
+        <select id="reward_type" name="reward_type">
+            <option value="Ruby">Ruby</option>
+            <option value="Gold">Gold</option>
+        </select>
+        <input type="submit">
+    </form>
+   <% }%>
+    
+    <% results_task.forEach(item=>{%>
+    <a href="/task/<%=item.id%>" style="text-decoration: none;">
+    <div class="task-box" style="color: #023059; margin-bottom: 7px;">
+        <div style="width: 95%; margin: auto;font-weight: 400; font-size: 13px;line-height: 1.6; height: fit-content;">
+        <p>Task : <%=item.task%></p>
+        <p>Due date : <%=item.date%></p>
+
+        <% if(item.task_code == 33){%>
+            <p>Assignee : All</p>
+        <%}else if(item.task_code == 11){%>
+            <p>Assignee : Divisi</p>
+        <%} else if(item.task_code == 22){%>
+            <p>Assignee : You</p>
+        <% }%>
+        <div style="display: flex; font-weight: bold;">
+            <% if(item.reward_type === "Gold"){%>
+                <img src="/image/coin.svg" style="margin-right: 5px;">
+         <%   }else {%>
+            <img src="/image/gem.svg" style="margin-right: 5px;">
+        <% } %>
+        <p style="color: #41F28E;margin-right: 5px;"><%=item.reward%></p>
+        <p style="margin-right: 5px;">or</p>
+        <p style="color: #F2226E;margin-right: 5px;"><%=item.punishment%></p>
+        </div>
+        </div>
+        <p style="font-size: 10px;font-weight: bolder; background-color: #023059; color: white; width:fit-content; padding: 4px 7px 4px 7px; border-radius: 12px;margin-left: 320px;"><%=item.status%></p>
+    </div>
+    
+  <%  })%>
+    </a>
+  </div>
+</div>
+    <script>
+        document.getElementById('taskCode').addEventListener('change', function() {
+            var playerSelect = document.getElementById('player');
+            if (this.value === '22') {
+                playerSelect.style.display='block'
+
+            } else {
+                playerSelect.innerHTML = ''; // Clear options if not 'Spesifik'
+            }
+        });
+    </script>
+</body>
+</html>

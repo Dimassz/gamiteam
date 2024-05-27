@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="/css/task.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="box">
+    <div class="task-box" style="color: #023059; margin-bottom: 7px;">
+        <div style="width: 95%; margin: auto;font-weight: 400; font-size: 13px;line-height: 1.6; height: fit-content;">
+        <p>Task : <%=results.task%></p>
+        <p>Due date : <%=results.date%> <%=results.date_time%></p>
+
+        <% if(results.task_code == 33){%>
+            <p>Assignee : All</p>
+        <%}else if(results.task_code == 11){%>
+            <p>Assignee : Divisi</p>
+        <%} else if(results.task_code == 22){%>
+            <p>Assignee : You</p>
+        <% }%>
+        <div style="display: flex; font-weight: bold;">
+            <% if(results.reward_type === "Gold"){%>
+                <img src="/image/coin.svg" style="margin-right: 5px;">
+         <%   }else {%>
+            <img src="/image/gem.svg" style="margin-right: 5px;">
+        <% } %>
+        <p style="color: #41F28E;margin-right: 5px;"><%=results.reward%></p>
+        <p style="margin-right: 5px;">or</p>
+        <p style="color: #F2226E;margin-right: 5px;"><%=results.punishment%></p>
+        </div>
+        <hr style="width: 100%; margin: auto; border: 0.8px solid #971343; border-radius: 12px;">
+        <div style="display: flex; align-items: center;">
+
+        <p>Attachment :</p>
+        <form method="post" action="/task/<%=results.id%>" enctype="multipart/form-data">
+            <%if(results.file == null){%>
+                <input type="file" style="font-size: 7px; margin-left: 7px;" name="file">
+           <% }else{%>
+                <a href="../uploads/<%=results.file%>" target="_blank"><%=results.file%></a>
+           <%} %>
+        </div>
+        <div style="display: flex;">
+         <p>Status : </p>
+            <select name="status" id="status" style="font-size: 8px;margin-left: 7px; padding: 0px; border-radius: 20px;">
+                <%if(results.status ==="ASSIGNED"){%>
+                    <option value="ASSIGNED" selected>ASSIGNED</option>
+                    <option value="IN PROGRESS">IN PROGRESS</option>
+                    <option value="COMPLETE">COMPLETE</option>
+                <%}else if(results.status === "IN PROGRESS"){%>
+                    <option value="ASSIGNED" selected>ASSIGNED</option>
+                    <option value="IN PROGRESS" selected>IN PROGRESS</option>
+                    <option value="COMPLETE">COMPLETE</option>
+                <%}else if(results.status === "COMPLETE"){%>
+                    <option value="ASSIGNED" selected>ASSIGNED</option>
+                    <option value="IN PROGRESS" selected>IN PROGRESS</option>
+                    <option value="COMPLETE" selected>COMPLETE</option>
+                <%}%>
+                
+            </select>
+        </div>
+        <input type="submit" value="SUBMIT" class="submit">
+        </form>
+            
+
+
+        </div>
+  </div>
+</div>
+
+</body>
+</html>
