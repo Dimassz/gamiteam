@@ -37,9 +37,9 @@ app.use(
 
 var con = mysql.createPool({
     host: "localhost",
-    user: "root",
-    password: "password",
-    database: "gamiteam"
+    user: "id21107175_user",
+    password: "Dimass123_",
+    database: "id21107175_gamiteam"
   });
 
 con.getConnection(function(err) {
