@@ -1,4 +1,5 @@
-const express = require('express')
+const express = require('express');
+const MySQLStore = require('express-mysql-session')(session);
 const app = express();
 const mysql = require('mysql');
 const port = process.env.PORT || 3000;
@@ -45,6 +46,8 @@ con.getConnection(function(err) {
     if (err) throw err;
     console.log("Connected to databases!");
   });
+
+const sessionStore = new MySQLStore({}, con);
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
