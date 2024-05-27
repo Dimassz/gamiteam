@@ -1,9 +1,9 @@
 const express = require('express');
+const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const app = express();
 const mysql = require('mysql');
 const port = process.env.PORT || 3000;
-const session = require('express-session');
 const path = require('path');
 
 const multer  = require('multer')
