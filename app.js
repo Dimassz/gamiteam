@@ -39,7 +39,7 @@ var con = mysql.createPool({
     host: "sql12.freemysqlhosting.net",
     user: "sql12709669",
     password: "adh6cLP8jB",
-    database: "	sql12709669"
+    database: "sql12709669"
   });
 
 con.getConnection(function(err) {
