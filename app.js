@@ -5,8 +5,8 @@ const app = express();
 const mysql = require('mysql');
 const port = process.env.PORT || 3000;
 const path = require('path');
-
 const multer  = require('multer')
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'uploads/')
@@ -94,6 +94,7 @@ app.get('/home', (req, res)=>{
         const ranked=result[0].ranked
         const id = res.locals.userId
         con.query(`SELECT *, DATE_FORMAT(date_task, '%d/%m/%Y') as date FROM task where (assignTO = ${id} and task_code = 33) or (assignTo=${id} and task_code = 22) ORDER BY id DESC LIMIT 2`,(err, results_task)=>{
+          console.log(results_task)
           con.query(`SELECT * FROM player ORDER BY coin DESC limit 3`,(err, results_leaderboard)=>{
             res.render('home.ejs', {name:name, position:position, level:level, coin:coin, ruby:ruby,ranked:ranked, results_task:results_task, leaderboard:results_leaderboard})
           })
@@ -201,6 +202,7 @@ app.post('/task/:taskId',upload.single('file'),(req, res)=>{
   })
   }else if(req.body.status === "COMPLETE"){
     con.query(`UPDATE task SET file="${req.file.originalname}", status = "${req.body.status}" where id =${taskId}`,(err, results)=>{
+    console.log(err)
     con.query(`SELECT reward,reward_type from task where id=${taskId}`,(err,results)=>{
       const reward = results[0].reward
       con.query(`UPDATE player set coin = coin + ${reward} where id = ${res.locals.userId}`,(err, results)=>{
