@@ -215,39 +215,29 @@ app.get('/task/:taskId', (req, res) => {
   }
 });
 
-app.post('/task/:taskId', upload.single('file'), (req, res) => {
-  const taskId = req.params.taskId;
-  if (req.body.status === "IN PROGRESS") {
-    con.query(`UPDATE task SET status = ? WHERE id = ?`, [req.body.status, taskId], (err, results) => {
-      if (err) {
-        console.error(err);
-        return res.redirect('/taskList');
-      }
-      res.redirect('/taskList');
-    });
-  } else if (req.body.status === "COMPLETE") {
-    con.query(`UPDATE task SET file = ?, status = ? WHERE id = ?`, [req.file.originalname, req.body.status, taskId], (err, results) => {
-      if (err) {
-        console.error(err);
-        return res.redirect('/taskList');
-      }
-      con.query(`SELECT reward, reward_type FROM task WHERE id = ?`, [taskId], (err, results) => {
-        if (err) {
-          console.error(err);
-          return res.redirect('/taskList');
-        }
-        const reward = results[0].reward;
-        con.query(`UPDATE player SET coin = coin + ? WHERE id = ?`, [reward, res.locals.userId], (err, results) => {
-          if (err) {
-            console.error(err);
-            return res.redirect('/taskList');
-          }
-          res.redirect('/taskList');
-        });
-      });
-    });
+app.post('/task/:taskId',upload.single('file'),(req, res)=>{
+  const taskId=req.params.taskId
+  if(req.body.status === "IN PROGRESS"){
+    con.query(`UPDATE task SET status = "${req.body.status}" where id =${taskId}`,(err, results)=>{
+    console.log(results);
+    console.log(err)
+    res.redirect('/taskList')
+  })
+  }else if(req.body.status === "COMPLETE"){
+    con.query(`UPDATE task SET file="${req.file.originalname}", status = "${req.body.status}" where id =${taskId}`,(err, results)=>{
+    console.log(err)
+    con.query(`SELECT reward,reward_type from task where id=${taskId}`,(err,results)=>{
+      const reward = results[0].reward
+      con.query(`UPDATE player set coin = coin + ${reward} where id = ${res.locals.userId}`,(err, results)=>{
+        console.log(err)
+        console.log(results)
+        res.redirect('/taskList')
+      })
+    })
+  })
   }
-});
+  
+})
 
 app.get('/files', (req, res) => {
   const exampleResults = {};
