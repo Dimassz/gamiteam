@@ -6,7 +6,6 @@ const mysql = require('mysql');
 const port = process.env.PORT || 3000;
 const path = require('path');
 const multer  = require('multer')
-import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // Multer setup for file uploads
 const storage = multer.diskStorage({
@@ -319,4 +318,3 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
- <SpeedInsights />
