@@ -55,7 +55,7 @@ app.get('/view/:key', (req, res) => {
     
     // Detect the content type of the file
     const contentType = data.ContentType || 'application/octet-stream';
-
+    console.log(data)
     res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', `inline; filename=${req.params.key}`);
     res.send(data.Body);
