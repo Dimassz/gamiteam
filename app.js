@@ -26,7 +26,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
   }
 
   const params = {
-    Bucket: process.env.FILEBASE_BUCKET_NAME,
+    Bucket: 'https://api.filebase.io/v1/ipfs',
     Key: req.file.originalname,
     Body: req.file.buffer
   };
