@@ -6,6 +6,7 @@ const mysql = require('mysql');
 const port = process.env.PORT || 3000;
 const path = require('path');
 const multer  = require('multer')
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -35,12 +36,17 @@ app.use(
     })
   );
 
-var con = mysql.createPool({
+const dbConfig = {
     host: "localhost",
     user: "root",
     password: "password",
-    database: "gamiteam"
-  });
+    database: "gamiteam",
+    connectionLimit: 10,
+    connectTimeout: 10000,
+    acquireTimeout: 10000,
+    timeout: 10000
+  };
+const con = mysql.createPool(dbConfig);
 
 con.getConnection(function(err) {
     if (err) throw err;
