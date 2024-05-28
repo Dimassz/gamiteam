@@ -3,19 +3,21 @@ const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const app = express();
 const mysql = require('mysql');
+const AWS = require('aws-sdk');
 const port = process.env.PORT || 3000;
 const path = require('path');
 const multer  = require('multer')
 
-// Multer setup for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.FILEBASE_ACCESS_KEY,
+  secretAccessKey: process.env.FILEBASE_SECRET_KEY,
+  endpoint: process.env.FILEBASE_ENDPOINT,
+  s3ForcePathStyle: true, // Needed with minio?
+  signatureVersion: 'v4'
 });
+// Multer setup for file uploads
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // Static file serving
@@ -313,6 +315,22 @@ app.get('/test', (req, res) => {
 
 app.post('/api/upload', upload.single('file'), (req, res) => {
   res.json(req.file.originalname);
+});
+
+app.post('/upload', upload.single('file'), (req, res) => {
+  const params = {
+    Bucket: process.env.FILEBASE_BUCKET_NAME,
+    Key: req.file.originalname,
+    Body: req.file.buffer
+  };
+
+  s3.upload(params, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error uploading file");
+    }
+    res.send(`File uploaded successfully. ${data.Location}`);
+  });
 });
 
 app.listen(port, () => {
