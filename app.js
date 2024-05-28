@@ -26,7 +26,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
   }
 
   const params = {
-    Bucket: 'MEVEOTg4MDU5NUFDRjJEMEU1QUM6cEZuRTcybDl6VFZYc0ZiVEtvRWk5NWd5ak01dUpPRHhqTEN0M0NKdzpnYW1pdGVhbQ==',
+    Bucket: 'gamiteam',
     Key: req.file.originalname,
     Body: req.file.buffer
   };
