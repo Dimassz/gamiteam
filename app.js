@@ -32,10 +32,10 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 const dbConfig = {
-    host: "MYSQL_HOST",
-    user: "MYSQL_USER",
-    password: "MYSQL_PASSWORD",
-    database: "MYSQL_DATABASE",
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
     connectionLimit: 10,
     connectTimeout: 10000,
     acquireTimeout: 10000,
