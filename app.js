@@ -36,9 +36,27 @@ app.post('/upload', upload.single('file'), (req, res) => {
       console.error(err);
       return res.status(500).send("Error uploading file");
     }
+    console.log(data)
     res.send(`File uploaded successfully. ${data.Location}`);
   });
 });
+
+app.get('/download/:key', (req, res) => {
+  const params = {
+    Bucket: 'gamiteam',
+    Key: req.params.key,
+  };
+
+  s3.getObject(params, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send('Error getting file from Filebase');
+    }
+    res.setHeader('Content-Disposition', `attachment; filename=${req.params.key}`);
+    res.send(data.Body);
+  });
+});
+
 
 // Static file serving
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
