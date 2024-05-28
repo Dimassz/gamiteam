@@ -18,7 +18,7 @@ const s3 = new AWS.S3({
 });
 // Multer setup for file uploads
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage }).single('file');
+const upload = multer({ storage: storage });
 
 app.post('/upload', upload, (req, res) => {
   if (!req.file) {
@@ -274,40 +274,40 @@ app.get('/files', (req, res) => {
   res.render('files', { results: exampleResults });
 });
 
-app.post('/addTask', (req, res) => {
-  const { task, taskCode, date, time, reward, punishment, repetition, reward_type, player } = req.body;
-  const pic = res.locals.name;
-  const task_id = Math.floor(Math.random() * 1000) + 10;
-  const assignor = res.locals.userId;
-  const status = "ASSIGNED";
-  con.query(`SELECT * FROM player WHERE id != ?`, [assignor], (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.redirect('/taskList');
-    }
-    if (taskCode == 33) {
-      const ids = results.map(row => row.id);
-      ids.forEach(id => {
-        con.query(`INSERT INTO task (task_code, task, pic, date_task, date_time, task_id, repetition, reward, punishment, reward_type, assignTo, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [taskCode, task, pic, date, time, task_id, repetition, reward, punishment, reward_type, id, status], (err, results) => {
-            if (err) {
-              console.error(err);
-            }
-          });
-      });
-      res.redirect('/taskList');
-    } else if (taskCode == 22) {
-      con.query(`INSERT INTO task (task_code, task, pic, date_task, date_time, task_id, repetition, reward, punishment, reward_type, assignTo, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [taskCode, task, pic, date, time, task_id, repetition, reward, punishment, reward_type, player, status], (err, results) => {
-          if (err) {
-            console.error(err);
-            return res.redirect('/taskList');
-          }
-          res.redirect('/taskList');
-        });
-    }
-  });
-});
+// app.post('/addTask', (req, res) => {
+//   const { task, taskCode, date, time, reward, punishment, repetition, reward_type, player } = req.body;
+//   const pic = res.locals.name;
+//   const task_id = Math.floor(Math.random() * 1000) + 10;
+//   const assignor = res.locals.userId;
+//   const status = "ASSIGNED";
+//   con.query(`SELECT * FROM player WHERE id != ?`, [assignor], (err, results) => {
+//     if (err) {
+//       console.error(err);
+//       return res.redirect('/taskList');
+//     }
+//     if (taskCode == 33) {
+//       const ids = results.map(row => row.id);
+//       ids.forEach(id => {
+//         con.query(`INSERT INTO task (task_code, task, pic, date_task, date_time, task_id, repetition, reward, punishment, reward_type, assignTo, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+//           [taskCode, task, pic, date, time, task_id, repetition, reward, punishment, reward_type, id, status], (err, results) => {
+//             if (err) {
+//               console.error(err);
+//             }
+//           });
+//       });
+//       res.redirect('/taskList');
+//     } else if (taskCode == 22) {
+//       con.query(`INSERT INTO task (task_code, task, pic, date_task, date_time, task_id, repetition, reward, punishment, reward_type, assignTo, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+//         [taskCode, task, pic, date, time, task_id, repetition, reward, punishment, reward_type, player, status], (err, results) => {
+//           if (err) {
+//             console.error(err);
+//             return res.redirect('/taskList');
+//           }
+//           res.redirect('/taskList');
+//         });
+//     }
+//   });
+// });
 
 app.get('/leaderboard', (req, res) => {
   con.query(`SELECT * FROM player ORDER BY coin DESC`, (err, results) => {
