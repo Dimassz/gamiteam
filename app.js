@@ -52,8 +52,13 @@ app.get('/download/:key', (req, res) => {
       console.error(err);
       return res.status(500).send('Error getting file from Filebase');
     }
-    res.setHeader('Content-Disposition', `attachment; filename=${req.params.key}`);
-    res.send(data);
+    
+    // Detect the content type of the file
+    const contentType = data.ContentType || 'application/octet-stream';
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `inline; filename=${req.params.key}`);
+    res.send(data.Body);
   });
 });
 
