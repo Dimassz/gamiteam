@@ -18,7 +18,27 @@ const s3 = new AWS.S3({
 });
 // Multer setup for file uploads
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage }).single('file');
+
+app.post('/upload', upload, (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
+  }
+
+  const params = {
+    Bucket: process.env.FILEBASE_BUCKET_NAME,
+    Key: req.file.originalname,
+    Body: req.file.buffer
+  };
+
+  s3.upload(params, (err, data) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error uploading file");
+    }
+    res.send(`File uploaded successfully. ${data.Location}`);
+  });
+});
 
 // Static file serving
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
@@ -313,25 +333,6 @@ app.get('/test', (req, res) => {
   res.render('test.ejs');
 });
 
-app.post('/upload', upload, (req, res) => {
-  if (!req.file) {
-    return res.status(400).send('No file uploaded.');
-  }
-
-  const params = {
-    Bucket: process.env.FILEBASE_BUCKET_NAME,
-    Key: req.file.originalname,
-    Body: req.file.buffer
-  };
-
-  s3.upload(params, (err, data) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send("Error uploading file");
-    }
-    res.send(`File uploaded successfully. ${data.Location}`);
-  });
-});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
