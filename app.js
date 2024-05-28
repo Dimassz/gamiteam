@@ -18,7 +18,7 @@ const s3 = new AWS.S3({
 });
 // Multer setup for file uploads
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage }).single('file');
 
 // Static file serving
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
@@ -317,7 +317,11 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
   res.json(req.file.originalname);
 });
 
-app.post('/upload', upload.single('file'), (req, res) => {
+app.post('/upload', upload, (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
+  }
+
   const params = {
     Bucket: process.env.FILEBASE_BUCKET_NAME,
     Key: req.file.originalname,
