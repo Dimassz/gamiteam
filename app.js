@@ -41,7 +41,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
   });
 });
 
-app.get('/download/:key', (req, res) => {
+app.get('/view/:key', (req, res) => {
   const params = {
     Bucket: 'gamiteam',
     Key: req.params.key,
