@@ -5,12 +5,8 @@ const app = express();
 const mysql = require('mysql');
 const port = process.env.PORT || 3000;
 const path = require('path');
-<<<<<<< HEAD
 const multer  = require('multer')
 import { SpeedInsights } from "@vercel/speed-insights/next"
-=======
-const multer = require('multer');
->>>>>>> b4f326b1736108f044f759a8f9150a6ce6761f2a
 
 // Multer setup for file uploads
 const storage = multer.diskStorage({
@@ -36,7 +32,6 @@ app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-<<<<<<< HEAD
 const dbConfig = {
     host: "localhost",
     user: "root",
@@ -47,19 +42,6 @@ const dbConfig = {
     acquireTimeout: 10000,
     timeout: 10000
   };
-=======
-// MySQL pool setup
-const dbConfig = {
-  host: "sql12.freemysqlhosting.net",
-  user: "sql12709669",
-  password: "adh6cLP8jB",
-  database: "sql12709669",
-  connectionLimit: 10,
-  connectTimeout: 10000,
-  acquireTimeout: 10000,
-  timeout: 10000
-};
->>>>>>> b4f326b1736108f044f759a8f9150a6ce6761f2a
 const con = mysql.createPool(dbConfig);
 
 con.getConnection((err) => {
