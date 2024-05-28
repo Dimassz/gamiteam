@@ -319,3 +319,4 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+ <SpeedInsights />
