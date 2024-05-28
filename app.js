@@ -32,10 +32,10 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 const dbConfig = {
-    host: "localhost",
-    user: "root",
-    password: "password",
-    database: "gamiteam",
+    host: "sql12.freemysqlhosting.net	",
+    user: "sql12709669",
+    password: "adh6cLP8jB",
+    database: "sql12709669",
     connectionLimit: 10,
     connectTimeout: 10000,
     acquireTimeout: 10000,
