@@ -36,7 +36,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
       console.error(err);
       return res.status(500).send("Error uploading file");
     }
-    console.log(data)
+    console.log()
     res.send(`File uploaded successfully. ${data.Location}`);
   });
 });
@@ -53,7 +53,7 @@ app.get('/download/:key', (req, res) => {
       return res.status(500).send('Error getting file from Filebase');
     }
     res.setHeader('Content-Disposition', `attachment; filename=${req.params.key}`);
-    res.send(data.Body);
+    res.send(data);
   });
 });
 
