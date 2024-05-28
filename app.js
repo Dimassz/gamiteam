@@ -313,10 +313,6 @@ app.get('/test', (req, res) => {
   res.render('test.ejs');
 });
 
-// app.post('/api/upload', upload.single('file'), (req, res) => {
-//   res.json(req.file.originalname);
-// });
-
 app.post('/upload', upload, (req, res) => {
   if (!req.file) {
     return res.status(400).send('No file uploaded.');
