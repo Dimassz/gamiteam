@@ -203,17 +203,40 @@ app.get('/register', (req, res) => {
   res.render('register.ejs');
 });
 
-app.post('/register', (req, res) => {
-  const { name, email, password, divisi, position } = req.body;
-  const level = 0;
-  con.query('INSERT INTO player (name, email, password, divisi, position, level) VALUES (?, ?, ?, ?, ?, ?)', [name, email, password, divisi, position, level], (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.redirect('/register');
-    }
-    res.redirect('/login');
-  });
-});
+app.post('/register',(req,res)=>{
+  const name=req.body.name
+  const email=req.body.email
+  const password=req.body.password
+  const divisi=req.body.divisi
+  const position=req.body.position
+  const level = 0
+  let divisi_id =0;
+  const role = "Player"
+  const ranked="bronze"
+  const coin=0
+  const ruby=0
+
+  if(divisi === "CEO"){
+    divisi_id =0;
+  }else if (divisi === "Operation"){
+    divisi_id =1;
+  }else if(divisi === "Marketing"){
+    divisi_id = 2
+  }else if(divisi ==="Finance"){
+    divisi_id=3
+  }else if(divisi === "Human Capital + Legal"){
+    divisi_id=4
+  }else if(divisi === "Halalin Academy"){
+    divisi_id=5
+  }
+
+
+  con.query('INSERT INTO player(name, email, password, divisi, position,level,divisi_id,role,ranked,coin,ruby) VALUES (?,?,?,?,?,?,?,?,?,?,?)',[name,email,password,divisi,position,level,divisi_id,role,ranked,coin,ruby],(err,result)=>{
+    console.log(result)
+    console.log(err)
+    res.redirect('/home')
+  })
+})
 
 app.get('/data', (req, res) => {
   con.query("SELECT * FROM player", (err, result) => {
