@@ -264,7 +264,7 @@ app.post('/task/:taskId', upload.single('file'), (req, res) => {
     Bucket: 'gamiteam',
     Key: req.file.originalname,
     Body: req.file.buffer
-  };
+  }
   if (req.body.status === "IN PROGRESS") {
     con.query(`UPDATE task SET status = ? WHERE id = ?`, [req.body.status, taskId], (err, results) => {
       if (err) {
@@ -272,7 +272,7 @@ app.post('/task/:taskId', upload.single('file'), (req, res) => {
         return res.redirect('/taskList');
       }
       res.redirect('/taskList');
-    });
+    })
   } else if (req.body.status === "COMPLETE") {
     s3.upload(params, (err, data) => {
       if (err) {
