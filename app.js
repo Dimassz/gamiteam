@@ -234,6 +234,15 @@ app.post('/register',(req,res)=>{
   con.query('INSERT INTO player(name, email, password, divisi, position,level,divisi_id,role,ranked,coin,ruby) VALUES (?,?,?,?,?,?,?,?,?,?,?)',[name,email,password,divisi,position,level,divisi_id,role,ranked,coin,ruby],(err,result)=>{
     console.log(result)
     console.log(err)
+    req.session.userId = result[0].id;
+    req.session.name = result[0].name;
+    req.session.position = result[0].position;
+    req.session.level = result[0].level;
+    req.session.coin = result[0].coin;
+    req.session.ruby = result[0].ruby;
+    req.session.ranked = result[0].ranked;
+    req.session.role = result[0].role;
+    res.locals.isLoggedIn = true;
     res.redirect('/home')
   })
 })
