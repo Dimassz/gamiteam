@@ -7,6 +7,7 @@ const AWS = require('aws-sdk');
 const port = process.env.PORT || 3000;
 const path = require('path');
 const multer  = require('multer')
+import { injectSpeedInsights } from '@vercel/speed-insights';
 
 
 const s3 = new AWS.S3({
@@ -405,7 +406,8 @@ app.get('/test', (req, res) => {
   res.render('test.ejs');
 });
 
-
+injectSpeedInsights();
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
