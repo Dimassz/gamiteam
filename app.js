@@ -407,6 +407,7 @@ app.get('/test', (req, res) => {
 });
 
 injectSpeedInsights();
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
