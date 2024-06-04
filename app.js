@@ -135,6 +135,14 @@ app.use((req, res, next) => {
 });
 
 // Routes
+
+app.get('/',(req, res)=>{
+  if(res.locals.isLoggedIn){
+    res.render('home.ejs')
+  }else{
+  res.redirect('/register')
+}})
+
 app.get('/home', (req, res) => {
   const userId = req.session.userId;
   if (res.locals.isLoggedIn) {
