@@ -140,7 +140,7 @@ app.get('/',(req, res)=>{
   if(res.locals.isLoggedIn){
     res.render('home.ejs')
   }else{
-  res.redirect('/register')
+  res.redirect('/login')
 }})
 
 app.get('/home', (req, res) => {
