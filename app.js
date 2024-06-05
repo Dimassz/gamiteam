@@ -132,7 +132,10 @@ app.use(session({
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
+  
   res.status(500).send('Something went wrong!');
+  connection.release();
+
 });
 
 // Middleware to check login status
