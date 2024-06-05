@@ -7,7 +7,30 @@ const AWS = require('aws-sdk');
 const port = process.env.PORT || 3000;
 const path = require('path');
 const multer  = require('multer')
+const { Client } = require('pg')
 
+
+const client = new Client({
+  user: "default",
+  host: "ep-little-feather-a1ehqcj5-pooler.ap-southeast-1.aws.neon.tech",
+  database: "verceldb",
+  password: "BTxaSpX23GgZ",
+  port: 5432,
+  ssl:{
+    rejectUnauthorized: false
+  }
+})
+client.connect(function(err) {
+  if (err) throw err;
+  console.log("Connected to Postgresql");
+});
+
+app.get('/pg',(req, res)=>{
+  client.query('SELECT * FROM player',(err, results)=>{
+  console.log(err)
+  res.send(results.rows[1].name)
+  })
+})
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.FILEBASE_ACCESS_KEY,
