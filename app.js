@@ -213,7 +213,7 @@ app.get('/profile', (req, res) => {
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-  con.query('SELECT * FROM player WHERE email=$1', [email], (err, result) => {
+  client.query('SELECT * FROM player WHERE email=$1', [email], (err, result) => {
     if (err || result.length === 0) {
       console.error(err);
       return res.redirect('/login');
