@@ -99,25 +99,25 @@ app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// const dbConfig = {
-//     host: process.env.MYSQL_HOST,
-//     user: process.env.MYSQL_USER,
-//     password: process.env.MYSQL_PASSWORD,
-//     database: process.env.MYSQL_DATABASE,
-//     connectionLimit: 10,
-//     connectTimeout: 10000,
-//     acquireTimeout: 10000,
-//     timeout: 10000
-//   };
-// const con = mysql.createPool(dbConfig);
+const dbConfig = {
+    host: process.env.MYSQL_HOST,
+    user: process.env.MYSQL_USER,
+    password: process.env.MYSQL_PASSWORD,
+    database: process.env.MYSQL_DATABASE,
+    connectionLimit: 10,
+    connectTimeout: 10000,
+    acquireTimeout: 10000,
+    timeout: 10000
+  };
+const con = mysql.createPool(dbConfig);
 
-// con.getConnection((err) => {
-//   if (err) {
-//     console.error('Error connecting to MySQL:', err);
-//     return;
-//   }
-//   console.log("Connected to databases!");
-// });
+con.getConnection((err) => {
+  if (err) {
+    console.error('Error connecting to MySQL:', err);
+    return;
+  }
+  console.log("Connected to databases!");
+});
 
 // Session store setup
 const sessionStore = new MySQLStore({}, con);
