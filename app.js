@@ -169,34 +169,60 @@ app.get('/',(req, res)=>{
   res.redirect('/login')
 }})
 
-app.get('/home', (req, res) => {
-  const userId = req.session.userId;
-  if (res.locals.isLoggedIn) {
-    client.query('SELECT * FROM player WHERE id=?', [userId], (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.redirect('/login');
-      }
-      const { name, position, level, coin, ruby, ranked } = result.rows[0];
-      client.query(`SELECT * FROM task WHERE (assignTO = $1 AND task_code = 33) OR (assignTo = $1 AND task_code = 22) ORDER BY id DESC LIMIT 2`, [userId], (err, results_task) => {
-        if (err) {
-          console.error(err);
-          return res.redirect('/login');
-        }
-        client.query(`SELECT * FROM player ORDER BY coin DESC LIMIT 3`, (err, results_leaderboard) => {
-          if (err) {
-            console.error(err);
-            return res.redirect('/login');
-          }
-          res.render('home.ejs', { name, position, level, coin, ruby, ranked, results_task:results_task.rows, leaderboard: results_leaderboard.rows });
-        });
-      });
-    });
-  } else {
-    res.redirect('/login');
-  }
-});
+// app.get('/home', (req, res) => {
+//   const userId = req.session.userId;
+//   if (res.locals.isLoggedIn) {
+//     client.query('SELECT * FROM player WHERE id=?', [userId], (err, result) => {
+//       if (err) {
+//         console.error(err);
+//         return res.redirect('/login');
+//       }
+//       const { name, position, level, coin, ruby, ranked } = result.rows[0];
+//       client.query(`SELECT * FROM task WHERE (assignTO = $1 AND task_code = 33) OR (assignTo = $1 AND task_code = 22) ORDER BY id DESC LIMIT 2`, [userId], (err, results_task) => {
+//         if (err) {
+//           console.error(err);
+//           return res.redirect('/login');
+//         }
+//         client.query(`SELECT * FROM player ORDER BY coin DESC LIMIT 3`, (err, results_leaderboard) => {
+//           if (err) {
+//             console.error(err);
+//             return res.redirect('/login');
+//           }
+//           res.render('home.ejs', { name, position, level, coin, ruby, ranked, results_task:results_task.rows, leaderboard: results_leaderboard.rows });
+//         });
+//       });
+//     });
+//   } else {
+//     res.redirect('/login');
+//   }
+// });
 
+app.get('/home', (req, res)=>{
+    const userId=req.session.userId
+    
+    if(res.locals.isLoggedIn){
+      client.query('SELECT * FROM player where id=$1',[userId],(err, result)=>{
+        console.log(err)
+        const name=result.rows[0].name
+        const position=result.rows[0].position
+        const level=result.rows[0].level
+        const coin= result.rows[0].coin
+        const ruby=result.rows[0].ruby
+        const ranked=result.rows[0].ranked
+        const id = res.locals.userId
+        client.query(`SELECT * FROM task where (assignTO = ${id} and task_code = 33) or (assignTo=${id} and task_code = 22) ORDER BY id DESC LIMIT 2`,(err, results_task)=>{
+          console.log(err)
+          console.log('pass')
+          client.query(`SELECT * FROM player ORDER BY coin DESC limit 3`,(err, results_leaderboard)=>{
+            console.log(results_leaderboard.rows)
+            res.render('home.ejs', {name:name, position:position, level:level, coin:coin, ruby:ruby,ranked:ranked, results_task:results_task.rows, leaderboard:results_leaderboard.rows})
+          })
+        })
+      })
+    }else(
+      res.redirect("login")
+    )
+})
 
 app.get('/login', (req, res) => {
   res.render('login.ejs');
