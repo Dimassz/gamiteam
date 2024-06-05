@@ -169,23 +169,23 @@ app.get('/',(req, res)=>{
 app.get('/home', (req, res) => {
   const userId = req.session.userId;
   if (res.locals.isLoggedIn) {
-    con.query("SELECT * FROM player WHERE id=?", [userId], (err, result) => {
+    client.query('SELECT * FROM player WHERE id=?', [userId], (err, result) => {
       if (err) {
         console.error(err);
         return res.redirect('/login');
       }
-      const { name, position, level, coin, ruby, ranked } = result[0];
-      con.query(`SELECT *, DATE_FORMAT(date_task, '%d/%m/%Y') as date FROM task WHERE (assignTO = ? AND task_code = 33) OR (assignTo = ? AND task_code = 22) ORDER BY id DESC LIMIT 2`, [userId, userId], (err, results_task) => {
+      const { name, position, level, coin, ruby, ranked } = result.rows[0];
+      client.query(`SELECT * FROM task WHERE (assignTO = $1 AND task_code = 33) OR (assignTo = $1 AND task_code = 22) ORDER BY id DESC LIMIT 2`, [userId], (err, results_task) => {
         if (err) {
           console.error(err);
           return res.redirect('/login');
         }
-        con.query(`SELECT * FROM player ORDER BY coin DESC LIMIT 3`, (err, results_leaderboard) => {
+        client.query(`SELECT * FROM player ORDER BY coin DESC LIMIT 3`, (err, results_leaderboard) => {
           if (err) {
             console.error(err);
             return res.redirect('/login');
           }
-          res.render('home.ejs', { name, position, level, coin, ruby, ranked, results_task, leaderboard: results_leaderboard });
+          res.render('home.ejs', { name, position, level, coin, ruby, ranked, results_task:results_task.rows, leaderboard: results_leaderboard.rows });
         });
       });
     });
@@ -193,6 +193,7 @@ app.get('/home', (req, res) => {
     res.redirect('/login');
   }
 });
+
 
 app.get('/login', (req, res) => {
   res.render('login.ejs');
@@ -212,23 +213,24 @@ app.get('/profile', (req, res) => {
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-  con.query('SELECT * FROM player WHERE email=?', [email], (err, result) => {
+  con.query('SELECT * FROM player WHERE email=$1', [email], (err, result) => {
     if (err || result.length === 0) {
       console.error(err);
       return res.redirect('/login');
     }
-    req.session.userId = result[0].id;
-    req.session.name = result[0].name;
-    req.session.position = result[0].position;
-    req.session.level = result[0].level;
-    req.session.coin = result[0].coin;
-    req.session.ruby = result[0].ruby;
-    req.session.ranked = result[0].ranked;
-    req.session.role = result[0].role;
+    req.session.userId = result.rows[0].id;
+    req.session.name = result.rows[0].name;
+    req.session.position = result.rows[0].position;
+    req.session.level = result.rows[0].level;
+    req.session.coin = result.rows[0].coin;
+    req.session.ruby = result.rows[0].ruby;
+    req.session.ranked = result.rows[0].ranked;
+    req.session.role = result.rows[0].role;
     res.locals.isLoggedIn = true;
     res.redirect('/home');
   });
 });
+
 
 app.get('/register', (req, res) => {
   res.render('register.ejs');
