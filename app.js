@@ -218,6 +218,7 @@ app.post('/login', (req, res) => {
   const { email, password } = req.body;
   client.query('SELECT * FROM player WHERE email=$1', [email], (err, result) => {
     if (err || result.rows.length === 0) {
+      console.log("error login")
       console.error(err);
       return res.redirect('/login');
     }
