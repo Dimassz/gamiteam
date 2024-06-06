@@ -11,10 +11,10 @@ const { Client } = require('pg')
 
 
 const client = new Client({
-  user: "default",
-  host: "ep-little-feather-a1ehqcj5-pooler.ap-southeast-1.aws.neon.tech",
-  database: "verceldb",
-  password: "BTxaSpX23GgZ",
+  user: process.env.VERCELDB_USER,
+  host: process.env.VERCELDB_HOST,
+  database: process.env.VERCELDB_DATABASE,
+  password: process.env.VERCELDB_PASSWORD,
   port: 5432,
   ssl:{
     rejectUnauthorized: false
