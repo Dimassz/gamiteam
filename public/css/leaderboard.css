@@ -10,7 +10,7 @@
 
 .container{
     width: 100%;
-    min-height: 100vh;
+    min-height: 100%;
     height: fit-content;  
     background-color: #01203a;
     
