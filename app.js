@@ -1,21 +1,22 @@
 const express = require('express');
 const session = require('express-session');
-const MySQLStore = require('express-mysql-session')(session);
 const app = express();
-const mysql = require('mysql');
 const AWS = require('aws-sdk');
 const port = process.env.PORT || 3000;
 const path = require('path');
 const multer  = require('multer')
-const { Client } = require('pg')
+const { Client } = require('pg');
+const PgSession = require('connect-pg-simple')(session);
+require('dotenv').config();
 
-
+//postgreSQL
 const client = new Client({
   user: process.env.VERCELDB_USER,
   host: process.env.VERCELDB_HOST,
   database: process.env.VERCELDB_DATABASE,
   password: process.env.VERCELDB_PASSWORD,
   port: 5432,
+  
   ssl:{
     rejectUnauthorized: false
   }
@@ -25,6 +26,19 @@ client.connect(function(err) {
   console.log("Connected to Postgresql");
 });
 
+const sessionStore = new PgSession({
+  pool: client, // Connection pool
+  tableName: 'session' // Use another table-name than the default "session" one
+});
+
+app.use(session({
+  store: sessionStore,
+  secret: process.env.SESSION_SECRET || 'my_secret_key', // Replace with your own secret
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // Set to true if using https
+}));
+//------//
 app.get('/pg',(req, res)=>{
   client.query('SELECT * FROM player',(err, results)=>{
   console.log(err)
@@ -99,36 +113,6 @@ app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-//DB mysql
-const dbConfig = {
-    host: process.env.MYSQL_HOST,
-    user: process.env.MYSQL_USER,
-    password: process.env.MYSQL_PASSWORD,
-    database: process.env.MYSQL_DATABASE,
-    connectionLimit: 100,
-    connectTimeout: 10000,
-    acquireTimeout: 10000,
-    timeout: 10000
-  };
-const con = mysql.createPool(dbConfig);
-
-con.getConnection((err) => {
-  if (err) {
-    console.error('Error connecting to MySQL:', err);
-    return;
-  }
-  console.log("Connected to databases!");
-});
-
-// Session store setup
-const sessionStore = new MySQLStore({}, con);
-app.use(session({
-  key: 'session_cookie_name',
-  secret: 'my_secret_key',
-  store: sessionStore,
-  resave: false,
-  saveUninitialized: false
-}));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -142,7 +126,6 @@ app.use((err, req, res, next) => {
 app.use((req, res, next) => {
   if (req.session.userId === undefined) {
     console.log("Belum Login");
-    res.locals.name = "Tamu";
     req.session.user_number = 0;
     res.locals.isLoggedIn = false;
   } else {
@@ -212,9 +195,7 @@ app.get('/home', (req, res)=>{
         const id = res.locals.userId
         client.query(`SELECT * FROM task where (assignTO = ${id} and task_code = 33) or (assignTo=${id} and task_code = 22) ORDER BY id DESC LIMIT 2`,(err, results_task)=>{
           console.log(err)
-          console.log('pass')
           client.query(`SELECT * FROM player ORDER BY coin DESC limit 3`,(err, results_leaderboard)=>{
-            console.log(results_leaderboard.rows)
             res.render('home.ejs', {name:name, position:position, level:level, coin:coin, ruby:ruby,ranked:ranked, results_task:results_task.rows, leaderboard:results_leaderboard.rows})
           })
         })
@@ -230,12 +211,12 @@ app.get('/login', (req, res) => {
 
 app.get('/profile', (req, res) => {
   const id = res.locals.userId;
-  client.query(`SELECT * FROM player WHERE id=$1`, [id], (err, results) => {
+  client.query('SELECT * FROM player WHERE id=$1', [id], (err, results) => {
     if (err) {
       console.error(err);
       return res.redirect('/login');
     }
-    const data = results[0];
+    const data = results.rows[0];
     res.render('profile.ejs', { data });
   });
 });
@@ -294,16 +275,19 @@ app.post('/register',(req,res)=>{
   }
 
 
-  con.query('INSERT INTO player(name, email, password, divisi, position,level,divisi_id,role,ranked,coin,ruby) VALUES (?,?,?,?,?,?,?,?,?,?,?)',[name,email,password,divisi,position,level,divisi_id,role,ranked,coin,ruby],(err,result)=>{
+  client.query('INSERT INTO player(name, email, password, divisi, position,level,divisi_id,role,ranked,coin,ruby) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id',[name,email,password,divisi,position,level,divisi_id,role,ranked,coin,ruby],(err,result)=>{
     console.log(result)
     console.log(err)
     res.locals.isLoggedIn = true;
+    console.log(`NEW ID : ${result.rows[0].id}`)
+    req.session.userId = result.rows[0].id
+
     res.redirect('/home')
   })
 })
 
 app.get('/data', (req, res) => {
-  con.query("SELECT * FROM player", (err, result) => {
+  client.query('SELECT * FROM player', (err, result) => {
     if (err) {
       console.error(err);
       return res.status(500).send(err);
@@ -315,17 +299,17 @@ app.get('/data', (req, res) => {
 app.get('/taskList', (req, res) => {
   const role = res.locals.role;
   const id = res.locals.userId;
-  con.query(`SELECT *, DATE_FORMAT(date_task, '%d/%m/%Y') as date FROM task WHERE (assignTO = ? AND task_code = 33) OR (assignTo = ? AND task_code = 22) ORDER BY id DESC`, [id, id], (err, results_task) => {
+  client.query(`SELECT * FROM task WHERE (assignTO = $1 AND task_code = 33) OR (assignTo = $1 AND task_code = 22) ORDER BY id DESC`, [id], (err, results_task) => {
     if (err) {
       console.error(err);
       return res.redirect('/login');
     }
-    con.query('SELECT id, name FROM player', (err, results_player) => {
+    client.query('SELECT id, name FROM player', (err, results_player) => {
       if (err) {
         console.error(err);
         return res.redirect('/login');
       }
-      res.render('taskList.ejs', { results_task, role, results_player });
+      res.render('taskList.ejs', { results_task:results_task.rows, role, results_player:results_player.rows });
     });
   });
 });
@@ -333,12 +317,12 @@ app.get('/taskList', (req, res) => {
 app.get('/task/:taskId', (req, res) => {
   const taskId = req.params.taskId;
   if (res.locals.isLoggedIn) {
-    con.query(`SELECT *, DATE_FORMAT(date_task, '%d/%m/%Y') as date FROM task WHERE id=?`, [taskId], (err, results) => {
+    client.query('SELECT * FROM task WHERE id=$1', [taskId], (err, results) => {
       if (err) {
         console.error(err);
         return res.redirect('/login');
       }
-      res.render('task.ejs', { results: results[0] });
+      res.render('task.ejs', { results: results.rows[0] });
     });
   } else {
     res.redirect('/login');
@@ -353,7 +337,7 @@ app.post('/task/:taskId', upload.single('file'), (req, res) => {
     Body: req.file.buffer
   }
   if (req.body.status === "IN PROGRESS") {
-    con.query(`UPDATE task SET status = ? WHERE id = ?`, [req.body.status, taskId], (err, results) => {
+    client.query('UPDATE task SET status = $1 WHERE id = $2', [req.body.status, taskId], (err, results) => {
       if (err) {
         console.error(err);
         return res.redirect('/taskList');
@@ -367,11 +351,15 @@ app.post('/task/:taskId', upload.single('file'), (req, res) => {
         return res.status(500).send("Error uploading file");
       }
       console.log(data)
-      con.query(`UPDATE task SET file="${data.key}", status = "${req.body.status}" where id =${taskId}`,(err, results)=>{
+      client.query(`UPDATE task SET file='${data.key}', status = '${req.body.status}' where id =${taskId}`,(err, results)=>{
       console.log(err)
-      con.query(`SELECT reward,reward_type from task where id=${taskId}`,(err,results)=>{
-        const reward = results[0].reward
-        con.query(`UPDATE player set coin = coin + ${reward} where id = ${res.locals.userId}`,(err, results)=>{
+      if (err) {
+        console.error(err);
+        return res.status(500).send("Error update Sql");
+      }
+      client.query(`SELECT reward,reward_type from task where id=${taskId}`,(err,results)=>{
+        const reward = results.rows[0].reward
+        client.query(`UPDATE player set coin = coin + ${reward} where id = ${res.locals.userId}`,(err, results)=>{
           console.log(err)
           console.log(results)
           res.redirect('/taskList')
@@ -409,48 +397,48 @@ app.get('/files', (req, res) => {
   res.render('files', { results: exampleResults });
 });
 
-// app.post('/addTask', (req, res) => {
-//   const { task, taskCode, date, time, reward, punishment, repetition, reward_type, player } = req.body;
-//   const pic = res.locals.name;
-//   const task_id = Math.floor(Math.random() * 1000) + 10;
-//   const assignor = res.locals.userId;
-//   const status = "ASSIGNED";
-//   con.query(`SELECT * FROM player WHERE id != ?`, [assignor], (err, results) => {
-//     if (err) {
-//       console.error(err);
-//       return res.redirect('/taskList');
-//     }
-//     if (taskCode == 33) {
-//       const ids = results.map(row => row.id);
-//       ids.forEach(id => {
-//         con.query(`INSERT INTO task (task_code, task, pic, date_task, date_time, task_id, repetition, reward, punishment, reward_type, assignTo, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-//           [taskCode, task, pic, date, time, task_id, repetition, reward, punishment, reward_type, id, status], (err, results) => {
-//             if (err) {
-//               console.error(err);
-//             }
-//           });
-//       });
-//       res.redirect('/taskList');
-//     } else if (taskCode == 22) {
-//       con.query(`INSERT INTO task (task_code, task, pic, date_task, date_time, task_id, repetition, reward, punishment, reward_type, assignTo, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-//         [taskCode, task, pic, date, time, task_id, repetition, reward, punishment, reward_type, player, status], (err, results) => {
-//           if (err) {
-//             console.error(err);
-//             return res.redirect('/taskList');
-//           }
-//           res.redirect('/taskList');
-//         });
-//     }
-//   });
-// });
+app.post('/addTask', (req, res) => {
+  const { task, taskCode, date, time, reward, punishment, repetition, reward_type, player } = req.body;
+  const pic = res.locals.name;
+  const task_id = Math.floor(Math.random() * 1000) + 10;
+  const assignor = res.locals.userId;
+  const status = "ASSIGNED";
+  client.query(`SELECT * FROM player WHERE id != $1`, [assignor], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.redirect('/taskList');
+    }
+    if (taskCode == 33) {
+      const ids = results.rows.map(row => row.id);
+      ids.forEach(id => {
+        client.query(`INSERT INTO task (task_code, task, pic, date_task, date_time, task_id, repetition, reward, punishment, reward_type, assignTo, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+          [taskCode, task, pic, date, time, task_id, repetition, reward, punishment, reward_type, id, status], (err, results) => {
+            if (err) {
+              console.error(err);
+            }
+          });
+      });
+      res.redirect('/taskList');
+    } else if (taskCode == 22) {
+      client.query(`INSERT INTO task (task_code, task, pic, date_task, date_time, task_id, repetition, reward, punishment, reward_type, assignTo, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+        [taskCode, task, pic, date, time, task_id, repetition, reward, punishment, reward_type, player, status], (err, results) => {
+          if (err) {
+            console.error(err);
+            return res.redirect('/taskList');
+          }
+          res.redirect('/taskList');
+        });
+    }
+  });
+});
 
 app.get('/leaderboard', (req, res) => {
-  con.query(`SELECT * FROM player ORDER BY coin DESC`, (err, results) => {
+  client.query(`SELECT * FROM player ORDER BY coin DESC`, (err, results) => {
     if (err) {
       console.error(err);
       return res.redirect('/home');
     }
-    res.render('leaderboard.ejs', { results });
+    res.render('leaderboard.ejs', { results:results.rows });
   });
 });
 

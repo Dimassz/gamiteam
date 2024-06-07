@@ -12,6 +12,8 @@
   "dependencies": {
     "@vercel/speed-insights": "^1.0.11",
     "aws-sdk": "^2.1628.0",
+    "connect-pg-simple": "^9.0.1",
+    "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-mysql-session": "^3.0.2",
