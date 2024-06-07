@@ -10,15 +10,15 @@
 
 .container{
     width: 100%;
-    min-height: 100%;
-    height: fit-content;  
+    min-height: 100vh;
+    height: auto;  
     background-color: #01203a;
     
 }
 
 .box{
     width: 460px;
-    min-height: 100%;
+    min-height: 100vh;
     height: auto;  
     background-color: #023059;
     margin: auto;
