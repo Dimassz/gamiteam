@@ -99,6 +99,7 @@ app.use(express.urlencoded({ extended: false }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+//DB mysql
 const dbConfig = {
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
@@ -229,7 +230,7 @@ app.get('/login', (req, res) => {
 
 app.get('/profile', (req, res) => {
   const id = res.locals.userId;
-  con.query(`SELECT * FROM player WHERE id=?`, [id], (err, results) => {
+  client.query(`SELECT * FROM player WHERE id=$1`, [id], (err, results) => {
     if (err) {
       console.error(err);
       return res.redirect('/login');
