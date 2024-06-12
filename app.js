@@ -190,6 +190,14 @@ app.get('/',(req, res)=>{
 
 app.get('/home', (req, res)=>{
     const userId=req.session.userId
+    const cacheKey=`home_${userId}`;
+
+    const cachedData = myCache.get(cacheKey);
+
+   if (cachedData) {
+    console.log('Cache hit:', cachedData);
+    return res.render('home.ejs', cachedData);
+  }
     
     if(res.locals.isLoggedIn){
       client.query('SELECT * FROM player where id=$1',[userId],(err, result)=>{
@@ -211,7 +219,18 @@ app.get('/home', (req, res)=>{
          console.error(err);
          return res.redirect('/login');
        }
-            res.render('home.ejs', {name:name, position:position, level:level, coin:coin, ruby:ruby,ranked:ranked, results_task:results_task.rows, leaderboard:results_leaderboard.rows})
+        const dataToCache = {
+            name,
+            position,
+            level,
+            coin,
+            ruby,
+            ranked,
+            results_task: results_task.rows,
+            leaderboard: results_leaderboard.rows
+          };
+            myCache.set(cacheKey, dataToCache);
+          res.render('home.ejs', dataToCache);
           })
         })
       })
