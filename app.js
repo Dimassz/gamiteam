@@ -198,6 +198,7 @@ app.get('/home', (req, res)=>{
     console.log('Cache hit:', cachedData);
     return res.render('home.ejs', cachedData);
   }
+  console.log("caching fail")
     
     if(res.locals.isLoggedIn){
       client.query('SELECT * FROM player where id=$1',[userId],(err, result)=>{
