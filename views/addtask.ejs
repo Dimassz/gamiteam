@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="/css/addTask.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="box">
+            <a  href="/taskList">
+                <img src="/image/back-icon.svg" style="width: 50x; height: 50px;">
+             </a>
+             <form method="post" action="/addTask">
+             <div class="form-container">
+                <div class="form-row">
+                  <div class="form-label">Task</div>
+                  <div class="form-colon">:</div>
+                  <div class="form-input"><input type="text" name="task" maxlength="20" /></div>
+                </div>
+                <div class="form-row">
+                  <div class="form-label">Due Date</div>
+                  <div class="form-colon">:</div>
+                  <div class="form-input"><input type="date" name="date" /></div>
+                </div>
+                <div class="form-row">
+                  <div class="form-label">Due Time</div>
+                  <div class="form-colon">:</div>
+                  <div class="form-input"><input type="time" name="time" /></div>
+                </div>
+                <div class="form-row">
+                  <div class="form-label">Reward Type</div>
+                  <div class="form-colon">:</div>
+                  <div class="form-input"> <select id="reward_type" name="reward_type">
+                    <option value="Ruby">Gold</option>
+                    <!-- <option value="Gold">Ruby</option> -->
+                </select></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-label">Reward</div>
+                    <div class="form-colon">:</div>
+                    <div class="form-input"><input type="number" name="reward" unavailable min="0" /></div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-label">Punishment</div>
+                    <div class="form-colon">:</div>
+                    <div class="form-input"><input type="number" name="punishment" max="0" /></div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-label">Assign To</div>
+                    <div class="form-colon">:</div>
+                    <div class="form-input"><select id="taskCode" name="taskCode" >
+                        <option value=11>Divisi</option>
+                        <option value=22>Spesifik</option>
+                        <option value=33 >All</option>
+                    </select></div>
+                  </div>
+                  <div class="form-row" id="player_list">
+                    <div class="form-label" id="lebel">Person</div>
+                    <div class="form-colon" id="form-colon">:</div>
+                    <div class="form-input" id="input">
+                      <select id="player" name="player">
+                        <% results_player.forEach(player=>{%>
+                          <option value="<%=player.id%>"><%=player.name%></option>
+                    <% }) %>
+                      </select>
+                  </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-label">Repetition</div>
+                    <div class="form-colon">:</div>
+                    <div class="form-input"><select name="repetition" id="repetition">
+                        <option value="None">None</option>
+                        <!-- <option value="Daily">Daily</option>
+                        <option value="Weekly">Weekly</option>
+                        <option value="Mothly">Mothly</option> -->
+                    </select></div>
+                  </div>
+              </div>
+              <input type="submit">
+            </form>   
+        </div>
+    </div>
+
+    <script>
+      document.getElementById('player_list').style.display="none"
+      document.getElementById('taskCode').addEventListener('change', function() {
+          var playerSelect = document.getElementById('player_list');
+          var label = document.getElementById('label');
+          var colon = document.getElementById('colon');
+          var input= document.getElementById('input');
+          if (this.value === '22') {
+            playerSelect.style.display='flex'
+          } else {
+            playerSelect.style.display='none' 
+          }
+      });
+
+      function addTask(){window.location.href = 'addTask';}
+  </script>
+</body>
+</html>

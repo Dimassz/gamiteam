@@ -15,38 +15,27 @@
                 <img src="/image/back-icon.svg" style="width: 50x; height: 50px;">
              </a>
     <% if (role === "Master" || role === "Grandmaster"){%>
-    <form method="post" action="/addTask">
-        <input type="text" placeholder="task" id="task" name="task" maxlength="40">
-        <input type="text" placeholder="descrption" id="descrption" name="descrption">
-        <input type="number" placeholder="reward" id="reward" name="reward">
-        <input type="number" placeholder="punishment" name="punishment">
-        <input type="date" id="date" name="date" >
-        <input type="time" id="time" name="time">
-        <select name="repetition" id="repetition">
-            <option value="None">None</option>
-            <option value="Daily">Daily</option>
-            <option value="Weekly">Weekly</option>
-            <option value="Mothly">Mothly</option>
-        </select>
-        <select id="taskCode" name="taskCode" >
-            <option value=11>Divisi</option>
-            <option value=22>Spesifik</option>
-            <option value=33 >All</option>
-        </select>
-        <select id="player" name="player" style="display: none;">
-            <% results_player.forEach(player=>{%>
-                <option value="<%=player.id%>"><%=player.name%></option>
-          <% }) %>
-
-        </select>
-        <select id="reward_type" name="reward_type">
-            <option value="Ruby">Ruby</option>
-            <option value="Gold">Gold</option>
-        </select>
-        <input type="submit">
-    </form>
+        <div class="box-assign">
+        <div class="addTask" onclick="addTask()" style="width: 32%; height: 100%; background-color: #F2226E; border-radius: 12px; display: flex;
+        align-items: center;">
+        <p style="margin: auto; color: white; font-weight: bolder;">ADD TASK</p>
+        </div>
+       
+       <div class="report" style="width: 32%; height: 100%; background-color: #F2226E; border-radius: 12px; display: flex;
+        align-items: center;">
+        <p style="margin: auto; color: white; font-weight: bolder;">REPORT</p>
+        </div>
+        
+        <div class="approval" style="width: 32%; height: 100%; background-color: #F2226E; border-radius: 12px; display: flex;
+        align-items: center;">
+        <p style="margin: auto; color: white; font-weight: bolder;">APPROVAL</p>
+        </div>
+        
+    </div>
    <% }%>
     
+
+
     <% results_task.forEach(item=>{%>
     <a href="/task/<%=item.id%>" style="text-decoration: none;">
     <div class="task-box" style="color: #023059; margin-bottom: 7px;">
@@ -89,6 +78,8 @@
                 playerSelect.innerHTML = ''; // Clear options if not 'Spesifik'
             }
         });
+
+        function addTask(){window.location.href = 'addTask';}
     </script>
 </body>
 </html>

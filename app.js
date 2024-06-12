@@ -8,6 +8,8 @@ const multer  = require('multer')
 const { Client } = require('pg');
 const PgSession = require('connect-pg-simple')(session);
 require('dotenv').config();
+const NodeCache = require('node-cache');
+const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
 
 //postgreSQL
 const client = new Client({
@@ -19,11 +21,22 @@ const client = new Client({
   
   ssl:{
     rejectUnauthorized: false
-  }
+  },
+  idleTimeoutMillis: 30000, // Timeout koneksi idle 30 detik
+  connectionTimeoutMillis: 2000 // Timeout koneksi 2 detik
 })
-client.connect(function(err) {
-  if (err) throw err;
-  console.log("Connected to Postgresql");
+
+client.connect((err) => {
+  if (err) {
+    console.error('Error connecting to PostgreSQL:', err.stack);
+  } else {
+    console.log('Connected to PostgreSQL');
+  }
+});
+
+client.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(-1);
 });
 
 const sessionStore = new PgSession({
@@ -38,13 +51,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: { secure: false } // Set to true if using https
 }));
-//------//
-app.get('/pg',(req, res)=>{
-  client.query('SELECT * FROM player',(err, results)=>{
-  console.log(err)
-  res.send(results.rows[1].name)
-  })
-})
+
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.FILEBASE_ACCESS_KEY,
@@ -70,7 +77,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
   s3.upload(params, (err, data) => {
     if (err) {
-      console.error(err);
+      console.error("S3 error :" + err);
       return res.status(500).send("Error uploading file");
     }
     console.log()
@@ -125,7 +132,7 @@ app.use((err, req, res, next) => {
 // Middleware to check login status
 app.use((req, res, next) => {
   if (req.session.userId === undefined) {
-    console.log("Belum Login");
+    console.log("Not Login");
     req.session.user_number = 0;
     res.locals.isLoggedIn = false;
   } else {
@@ -137,6 +144,7 @@ app.use((req, res, next) => {
     res.locals.ruby = req.session.ruby;
     res.locals.ranked = req.session.ranked;
     res.locals.role = req.session.role;
+    res.locals.divisi_id=req.session.divisi_id
     res.locals.isLoggedIn = true;
     console.log("USER ID:" + res.locals.userId);
   }
@@ -147,7 +155,7 @@ app.use((req, res, next) => {
 
 app.get('/',(req, res)=>{
   if(res.locals.isLoggedIn){
-    res.render('home.ejs')
+    res.redirect('/home')
   }else{
   res.redirect('/login')
 }})
@@ -185,17 +193,24 @@ app.get('/home', (req, res)=>{
     
     if(res.locals.isLoggedIn){
       client.query('SELECT * FROM player where id=$1',[userId],(err, result)=>{
-        console.log(err)
-        const name=result.rows[0].name
-        const position=result.rows[0].position
-        const level=result.rows[0].level
-        const coin= result.rows[0].coin
-        const ruby=result.rows[0].ruby
-        const ranked=result.rows[0].ranked
+        if (err) {
+         console.error(err);
+         return res.redirect('/login');
+       }
+        console.log("Home1 Error : "+err)
+        const { name, position, level, coin, ruby, ranked } = result.rows[0];
         const id = res.locals.userId
-        client.query(`SELECT * FROM task where (assignTO = ${id} and task_code = 33) or (assignTo=${id} and task_code = 22) ORDER BY id DESC LIMIT 2`,(err, results_task)=>{
-          console.log(err)
+        client.query(`SELECT * FROM task where (assignTO = $1 and task_code = 33) or (assignTo=$1 and task_code = 22) OR (assignTo = $1 AND task_code = 11) ORDER BY id DESC LIMIT 2`,[id],(err, results_task)=>{
+          console.log("Home2 Error : "+err)
+            if (err) {
+         console.error(err);
+         return res.redirect('/login');
+       }
           client.query(`SELECT * FROM player ORDER BY coin DESC limit 3`,(err, results_leaderboard)=>{
+              if (err) {
+         console.error(err);
+         return res.redirect('/login');
+       }
             res.render('home.ejs', {name:name, position:position, level:level, coin:coin, ruby:ruby,ranked:ranked, results_task:results_task.rows, leaderboard:results_leaderboard.rows})
           })
         })
@@ -211,12 +226,21 @@ app.get('/login', (req, res) => {
 
 app.get('/profile', (req, res) => {
   const id = res.locals.userId;
+  const cacheKey = `profile_${id}`;
+  const cachedData = myCache.get(cacheKey);
+
+    if (cachedData) {
+    console.log(cachedData)
+    return res.render('profile.ejs', { data: cachedData });
+  }
+
   client.query('SELECT * FROM player WHERE id=$1', [id], (err, results) => {
     if (err) {
       console.error(err);
       return res.redirect('/login');
     }
     const data = results.rows[0];
+     myCache.set(cacheKey, data, 3600)
     res.render('profile.ejs', { data });
   });
 });
@@ -237,6 +261,7 @@ app.post('/login', (req, res) => {
     req.session.ruby = result.rows[0].ruby;
     req.session.ranked = result.rows[0].ranked;
     req.session.role = result.rows[0].role;
+    req.session.divisi_id=result.rows[0].divisi_id
     res.locals.isLoggedIn = true;
     res.redirect('/home');
   });
@@ -299,20 +324,27 @@ app.get('/data', (req, res) => {
 app.get('/taskList', (req, res) => {
   const role = res.locals.role;
   const id = res.locals.userId;
-  client.query(`SELECT * FROM task WHERE (assignTO = $1 AND task_code = 33) OR (assignTo = $1 AND task_code = 22) ORDER BY id DESC`, [id], (err, results_task) => {
+  
+  const cacheKey=`tasklist_${id}`
+  const cachedData = myCache.get(cacheKey);
+
+    if (cachedData) {
+    console.log("HASIL CACHING"+cachedData)
+    return res.render('taskList.ejs', { results_task: cachedData, role });
+  }
+
+  client.query(`SELECT * FROM task WHERE (assignTO = $1 AND task_code = 33) OR (assignTo = $1 AND task_code = 22) OR (assignTo = $1 AND task_code = 11) ORDER BY id DESC`, [id], (err, results_task) => {
     if (err) {
       console.error(err);
       return res.redirect('/login');
     }
-    client.query('SELECT id, name FROM player', (err, results_player) => {
-      if (err) {
-        console.error(err);
-        return res.redirect('/login');
-      }
-      res.render('taskList.ejs', { results_task:results_task.rows, role, results_player:results_player.rows });
-    });
+  
+       myCache.set(cacheKey, results_task.rows, 3600);
+      res.render('taskList.ejs', { results_task:results_task.rows, role, });
+    
   });
 });
+
 
 app.get('/task/:taskId', (req, res) => {
   const taskId = req.params.taskId;
@@ -331,11 +363,7 @@ app.get('/task/:taskId', (req, res) => {
 
 app.post('/task/:taskId', upload.single('file'), (req, res) => {
   const taskId = req.params.taskId;
-  const params = {
-    Bucket: 'gamiteam',
-    Key: req.file.originalname,
-    Body: req.file.buffer
-  }
+
   if (req.body.status === "IN PROGRESS") {
     client.query('UPDATE task SET status = $1 WHERE id = $2', [req.body.status, taskId], (err, results) => {
       if (err) {
@@ -345,6 +373,11 @@ app.post('/task/:taskId', upload.single('file'), (req, res) => {
       res.redirect('/taskList');
     })
   } else if (req.body.status === "COMPLETE") {
+    const params = {
+    Bucket: 'gamiteam',
+    Key: req.file.originalname,
+    Body: req.file.buffer
+  }
     s3.upload(params, (err, data) => {
       if (err) {
         console.error(err);
@@ -397,8 +430,19 @@ app.get('/files', (req, res) => {
   res.render('files', { results: exampleResults });
 });
 
+app.get('/addtask',(req, res)=>{
+  client.query('SELECT * FROM player',(err,results)=>{
+    if (err) {
+      console.error(err);
+      return res.redirect('/logout');
+    }
+    res.render('addTask.ejs',{results_player:results.rows})
+  })
+})
+
 app.post('/addTask', (req, res) => {
   const { task, taskCode, date, time, reward, punishment, repetition, reward_type, player } = req.body;
+  console.log(time)
   const pic = res.locals.name;
   const task_id = Math.floor(Math.random() * 1000) + 10;
   const assignor = res.locals.userId;
@@ -428,6 +472,22 @@ app.post('/addTask', (req, res) => {
           }
           res.redirect('/taskList');
         });
+    }else if (taskCode == 11){
+    const divisi_id = res.locals.divisi_id
+    const id =res.locals.userId
+      client.query('SELECT * FROM player where divisi_id=$1 AND id!=$2',[divisi_id,id],(err,results_divisi)=>{
+      const ids = results_divisi.rows.map(row => row.id);
+        ids.forEach(id => {
+        client.query(`INSERT INTO task (task_code, task, pic, date_task, date_time, task_id, repetition, reward, punishment, reward_type, assignTo, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+          [taskCode, task, pic, date, time, task_id, repetition, reward, punishment, reward_type, id, status], (err, results) => {
+          console.log(results)
+            if (err) {
+              console.error(err);
+            }
+          });
+      });
+      res.redirect('/taskList');
+      })
     }
   });
 });

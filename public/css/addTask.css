@@ -1,0 +1,63 @@
+*{
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+.container{
+    width: 100%;
+    min-height: 100vh;
+    height: auto;
+    background-color: #01203a;
+    box-sizing: border-box;
+}
+.box{
+    width: 460px;
+    min-height: 100vh;
+    height: auto;  
+    background-color: #023059;
+    margin: auto;
+    
+}
+
+
+.input{
+    display: flex;
+    width: 190px;
+    justify-content: space-between;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: auto auto 1fr;
+    gap: 10px;
+    height: auto;
+    background-color: #e0f7fa;
+    padding: 10px;
+  }
+  
+  .form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+ .form-label {
+    flex: 1;
+}
+
+.form-colon {
+    margin: 0 10px;
+}
+
+.form-input {
+    flex: 2;
+}
+  
+  #player_list {
+    display: none; /* Default disembunyikan */
+}

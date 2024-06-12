@@ -33,3 +33,21 @@
     flex-direction: column;
     padding: 10px 0px 10px 0px;
 }
+
+.box-assign{
+    display: flex;
+    margin: auto;
+    width: 90%;
+    height: 50px;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.addTask:hover{
+    cursor: pointer;
+}
+.report:hover{
+    cursor: pointer;
+}
+.approval:hover{
+    cursor: pointer;
+}

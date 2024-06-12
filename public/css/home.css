@@ -105,7 +105,7 @@ progress{
 .section-3-content{
     width: 90%;
     margin: auto;
-    height: auto;
+    min-height: auto;
 }
 
 .section-4{
