@@ -7,9 +7,19 @@ const path = require('path');
 const multer  = require('multer')
 const { Client } = require('pg');
 const PgSession = require('connect-pg-simple')(session);
+const  Redis = require('ioredis');
+const redisClient = new Redis("rediss://default:Adc_AAIncDFlYjMzMDlkNGI4YzI0NDk1OWVmMDZiOWYwYmI5YmQ0N3AxNTUxMDM@modest-gibbon-55103.upstash.io:6379");
 require('dotenv').config();
-const NodeCache = require('node-cache');
-const myCache = new NodeCache({ stdTTL: 100, checkperiod: 120 });
+
+//Redis
+// const c = createClient ({
+//   url : "rediss://default:Adc_AAIncDFlYjMzMDlkNGI4YzI0NDk1OWVmMDZiOWYwYmI5YmQ0N3AxNTUxMDM@modest-gibbon-55103.upstash.io:6379"
+// });
+
+// c.on("error", function(err) {
+//   throw err;
+// });
+// c.connect()
 
 //postgreSQL
 const client = new Client({
@@ -188,80 +198,107 @@ app.get('/',(req, res)=>{
 //   }
 // });
 
-app.get('/home', (req, res)=>{
-    const userId=req.session.userId
-    const cacheKey=`home_${userId}`;
+app.get('/home', (req, res) => {
+  const userId = req.session.userId;
 
-    const cachedData = myCache.get(cacheKey);
 
-   if (cachedData) {
-    console.log('Cache hit:', cachedData);
-    return res.render('home.ejs', cachedData);
-  }
-  console.log("caching fail")
-    
-    if(res.locals.isLoggedIn){
-      client.query('SELECT * FROM player where id=$1',[userId],(err, result)=>{
+    if (res.locals.isLoggedIn) {
+      client.query('SELECT * FROM player WHERE id=$1', [userId], (err, result) => {
         if (err) {
-         console.error(err);
-         return res.redirect('/login');
-       }
-        console.log("Home1 Error : "+err)
+          console.error(err);
+          return res.redirect('/login');
+        }
+        console.log("Home1 Error:", err);
         const { name, position, level, coin, ruby, ranked } = result.rows[0];
-        const id = res.locals.userId
-        client.query(`SELECT * FROM task where (assignTO = $1 and task_code = 33) or (assignTo=$1 and task_code = 22) OR (assignTo = $1 AND task_code = 11) ORDER BY id DESC LIMIT 2`,[id],(err, results_task)=>{
-          console.log("Home2 Error : "+err)
+        const id = res.locals.userId;
+        client.query(`SELECT * FROM task WHERE (assignTO = $1 AND task_code = 33) OR (assignTo=$1 AND task_code = 22) OR (assignTo = $1 AND task_code = 11) ORDER BY id DESC LIMIT 2`, [id], (err, results_task) => {
+          console.log("Home2 Error:", err);
+          if (err) {
+            console.error(err);
+            return res.redirect('/login');
+          }
+          client.query(`SELECT * FROM player ORDER BY coin DESC LIMIT 3`, (err, results_leaderboard) => {
             if (err) {
-         console.error(err);
-         return res.redirect('/login');
-       }
-          client.query(`SELECT * FROM player ORDER BY coin DESC limit 3`,(err, results_leaderboard)=>{
-              if (err) {
-         console.error(err);
-         return res.redirect('/login');
-       }
-        const dataToCache = {
-            name,
-            position,
-            level,
-            coin,
-            ruby,
-            ranked,
-            results_task: results_task.rows,
-            leaderboard: results_leaderboard.rows
-          };
-            myCache.set(cacheKey, dataToCache);
-          res.render('home.ejs', dataToCache);
-          })
-        })
-      })
-    }else(
-      res.redirect("login")
-    )
-})
+              console.error(err);
+              return res.redirect('/login');
+            }
+            const dataToCache = {
+              name,
+              position,
+              level,
+              coin,
+              ruby,
+              ranked,
+              results_task: results_task.rows,
+              leaderboard: results_leaderboard.rows
+            };
+            res.render('home.ejs', dataToCache);
+          });
+        });
+      });
+    } else {
+      res.redirect('/login');
+    }
+});
+
 
 app.get('/login', (req, res) => {
   res.render('login.ejs');
 });
 
+// app.get('/profile', (req, res) => {
+//   const id = res.locals.userId;
+//   const cacheKey=`profile_${id}`
+//   const cachedData = c.get(cacheKey);
+
+//    if (cachedData) {
+//    console.log(cachedData)
+//     return res.render('profile.ejs', { data: cachedData });
+//   }
+
+//   client.query('SELECT * FROM player WHERE id=$1', [id], (err, results) => {
+//     if (err) {
+//       console.error(err);
+//       return res.redirect('/login');
+//     }
+//     const data = results.rows[0];
+//      c.set(cacheKey, data); 
+//     res.render('profile.ejs', { data });
+//   });
+// });
+
 app.get('/profile', (req, res) => {
   const id = res.locals.userId;
   const cacheKey = `profile_${id}`;
-  const cachedData = myCache.get(cacheKey);
 
-    if (cachedData) {
-    console.log(cachedData)
-    return res.render('profile.ejs', { data: cachedData });
-  }
-
-  client.query('SELECT * FROM player WHERE id=$1', [id], (err, results) => {
+  // Coba untuk mengambil data dari Redis cache
+  redisClient.get(cacheKey, (err, cachedData) => {
     if (err) {
-      console.error(err);
+      console.error('Gagal mengambil data dari Redis:', err);
       return res.redirect('/login');
     }
-    const data = results.rows[0];
-     myCache.set(cacheKey, data, 3600)
-    res.render('profile.ejs', { data });
+
+    // Jika data ada di cache, kirimkan ke klien
+    if (cachedData) {
+      console.log('Data ditemukan di Redis cache:', cachedData);
+      return res.render('profile.ejs', { data: JSON.parse(cachedData) });
+    }
+
+    // Jika data tidak ada di cache, lakukan query ke database
+    client.query('SELECT * FROM player WHERE id=$1', [id], (err, results) => {
+      if (err) {
+        console.error('Gagal melakukan query ke database:', err);
+        return res.redirect('/login');
+      }
+
+      const data = results.rows[0];
+
+      // Simpan data ke Redis cache untuk digunakan di masa mendatang
+      redisClient.set(cacheKey, JSON.stringify(data), 'EX', 3600); // Simpan selama 1 jam
+
+      // Kirimkan data ke klien
+      res.render('profile.ejs', { data });
+    });
   });
 });
 
@@ -344,22 +381,12 @@ app.get('/data', (req, res) => {
 app.get('/taskList', (req, res) => {
   const role = res.locals.role;
   const id = res.locals.userId;
-  
-  const cacheKey=`tasklist_${id}`
-  const cachedData = myCache.get(cacheKey);
-
-    if (cachedData) {
-    console.log("HASIL CACHING"+cachedData)
-    return res.render('taskList.ejs', { results_task: cachedData, role });
-  }
 
   client.query(`SELECT * FROM task WHERE (assignTO = $1 AND task_code = 33) OR (assignTo = $1 AND task_code = 22) OR (assignTo = $1 AND task_code = 11) ORDER BY id DESC`, [id], (err, results_task) => {
     if (err) {
       console.error(err);
       return res.redirect('/login');
     }
-  
-       myCache.set(cacheKey, results_task.rows, 3600);
       res.render('taskList.ejs', { results_task:results_task.rows, role, });
     
   });
